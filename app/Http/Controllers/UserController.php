@@ -3,34 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Models\Career;
-use App\Models\User; // ¡Importante! Faltaba importar el modelo User
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function create(){
+    // Muestra el formulario con la lista de carreras
+    public function create()
+    {
         $careers = Career::all();
         return view('register', compact('careers'));
     }
 
-    public function store(Request $request){
-        // 1. Corregido 'validate' y las reglas de la base de datos
+    // Guarda un nuevo usuario
+    public function store(Request $request)
+    {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email', // Corregido: separado por coma
-            'password' => 'required|min:8|confirmed',
-            'career_id' => 'required|exists:careers,id', // Corregido: apunta a la tabla careers, columna id
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email',
+            'password'       => 'required|min:8|confirmed',
+            'career_id'      => 'required|exists:careers,id',
             'terms_accepted' => 'accepted',
+        ], [
+            'name.required'           => 'El nombre es obligatorio.',
+            'name.max'                => 'El nombre no puede superar los 255 caracteres.',
+            'email.required'          => 'El correo electrónico es obligatorio.',
+            'email.email'             => 'El correo no tiene un formato válido.',
+            'email.unique'            => 'Este correo ya está registrado.',
+            'password.required'       => 'La contraseña es obligatoria.',
+            'password.confirmed'      => 'Las contraseñas no coinciden.',
+            'career_id.required'      => 'Debes seleccionar una carrera.',
+            'career_id.exists'        => 'La carrera seleccionada no es válida.',
+            'terms_accepted.accepted' => 'Debes aceptar los términos y condiciones.',
         ]);
 
-        // 2. Corregido: Todo este bloque ahora está DENTRO de la función store
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'career_id' => $request->career_id,
+        //  Guardamos el resultado para obtener el nombre del usuario creado.
+        $user = User::create([
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'password'       => Hash::make($request->password),
+            'career_id'      => $request->career_id,
+            'terms_accepted' => true,
         ]);
 
-        return redirect()->route('register')->with('success', 'Usuario registrado exitosamente.');
-    } // Llave de cierre del método store en su lugar correcto
+        //obtener el nombre de la carrera
+        $career = Career::find($request->career_id);
+        // Mandamos el nombre del estudiante en el flash para mostrarlo en el modal
+        return redirect()->route('register')->with('success', $request->name
+        . ' ha sido registrado a la carrera de ' . $career->name . ' correctamente.');
+    }
 }

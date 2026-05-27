@@ -7,22 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecutar la migración (crear la tabla).
      */
     public function up(): void
     {
         Schema::create('careers', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+            $table->id();                // Columna ID autoincremental
+            $table->string('name');      // Nombre de la carrera (texto)
+            $table->string('code')->unique()->nullable(); //codigo unico
+            $table->text('description')->nullable(); //para descripcion de las carreras
+            $table->boolean('is_active')->default(true); //activa por defecto
+            $table->timestamps();        // created_at y updated_at
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revertir la migración (eliminar la tabla).
      */
     public function down(): void
     {
-        Schema::dropIfExists('careers');
+        Schema::dropIfExists('careers'); // Borra la tabla si existe
     }
 };

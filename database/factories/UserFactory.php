@@ -13,33 +13,35 @@ use Illuminate\Support\Str;
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * La contraseña que voy a usar por defecto en los usuarios de prueba.
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Defino los valores por defecto para crear usuarios falsos.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'name' => fake()->name(),                              // Nombre aleatorio
+            'email' => fake()->unique()->safeEmail(),              // Email único y válido
+            'email_verified_at' => now(),                          // Marco el email como verificado
+            'password' => static::$password ??= Hash::make('password'), // Contraseña por defecto: "password"
+            'remember_token' => Str::random(10),                   // Token aleatorio para "recordarme"
+            'career_id' => \App\Models\Career::inRandomOrder()->first()?->id ?? 1, // Cojo una carrera al azar o la 1
+            'terms_accepted' => true,                              // Acepto los términos por defecto
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indico que el email no debe estar verificado (para usuarios sin verificar).
      */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'email_verified_at' => null,   // Pongo la verificación en null
         ]);
     }
 }
