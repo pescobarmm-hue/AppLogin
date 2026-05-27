@@ -11,3 +11,9 @@ Route::get('/register', [UserController::class, 'create'])->name('register');
 
 // 3. Ruta para procesar los datos enviados por el formulario
 Route::post('/register', [UserController::class, 'store'])->name('register.store');
+
+// Lista de estudiantes
+Route::get('/estudiantes', [UserController::class, 'index'])->name('users.index');
+
+
+

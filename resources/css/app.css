@@ -1,0 +1,725 @@
+/* ============================================================
+   Primero reinicio todos los márgenes y box-sizing para que no haya sorpresas
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box; /* El padding y border no aumentan el ancho total */
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%; /* Evito que el texto se agrande en iPhone */
+}
+
+body {
+    font-family:
+        "DM Sans",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background-color: #0d1117; /* Fondo oscuro  */
+    color: #e6edf3; /* Texto claro */
+    min-height: 100vh; /* Ocupo toda la pantalla */
+    display: flex; /* Uso flexbox para centrar */
+    align-items: flex-start; /* Arriba, pero centrado horizontal */
+    justify-content: center;
+    padding: 40px 16px; /* Separación de los bordes */
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Variables que uso para colores y tamaños (así es fácil cambiarlos)
+   ============================================================ */
+:root {
+    --bg-page: #0d1117;
+    --bg-card: #161b22;
+    --bg-input: #0d1117;
+    --border: #30363d;
+    --border-focus: #388bfd;
+    --border-error: #f85149;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent-green: #3fb950;
+    --accent-blue: #58a6ff;
+    --btn-bg: #238636;
+    --btn-hover: #2ea043;
+    --btn-active: #1a7f37;
+    --btn-border: rgba(46, 160, 67, 0.25);
+    --error-bg: #1f0a0a;
+    --error-text: #f85149;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --shadow-card: 0 0 0 1px #30363d, 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-focus: 0 0 0 3px rgba(56, 139, 253, 0.3);
+    --shadow-error: 0 0 0 3px rgba(248, 81, 73, 0.2);
+    --transition: 0.15s ease;
+}
+
+/* ============================================================
+   Contenedor principal que limita el ancho del formulario
+   ============================================================ */
+/* OJO: antes estaba mal escrito como .page-wrappers, lo arreglé */
+.page-wrapper {
+    width: 100%;
+    max-width: 380px; /* Para que no se estire mucho en pantallas grandes */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ============================================================
+   Encabezado con el título
+   ============================================================ */
+.auth-header {
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 400;
+}
+
+/* ============================================================
+   Alertas (cuando hay errores del servidor)
+   ============================================================ */
+/* Arreglé los selectores rotos como ".ale rt" */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.alert-error {
+    background-color: var(--error-bg);
+    border: 1px solid var(--border-error);
+    color: var(--error-text);
+}
+
+.alert svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ============================================================
+   Tarjeta blanca (fondo oscuro en realidad)
+   ============================================================ */
+.form-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+}
+
+/* ============================================================
+   Cada grupo de campo (label + input)
+   ============================================================ */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.field-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.field-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: block;
+}
+
+/* ============================================================
+   Estilos de los inputs
+   ============================================================ */
+.field-input {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 5px 12px;
+    height: 34px;
+    outline: none;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.field-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+.field-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-focus);
+}
+
+.field-input.has-icon {
+    padding-right: 38px; /* Espacio para el botón de ojo */
+}
+
+/* Cuando el grupo tiene error, pongo borde rojo */
+.has-error .field-input,
+.has-error .field-select {
+    border-color: var(--border-error);
+    box-shadow: var(--shadow-error);
+}
+
+.has-error .field-input:focus {
+    box-shadow: var(--shadow-error);
+}
+
+/* ============================================================
+   Wrapper para el botón de mostrar contraseña
+   ============================================================ */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 3px;
+    transition: color var(--transition);
+    outline: none;
+    line-height: 0;
+}
+
+.toggle-password:hover {
+    color: var(--text-secondary);
+}
+
+.toggle-password:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 1px;
+}
+
+/* ============================================================
+   Indicador de fortaleza (las 4 barritas)
+   ============================================================ */
+.strength-bar {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.strength-bar span {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.2s ease;
+}
+
+.strength-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    min-height: 14px;
+    transition: color 0.2s ease;
+}
+
+/* ============================================================
+   Select de carrera personalizado
+   ============================================================ */
+.select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.field-select {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted); /* Si no hay valor, se ve gris */
+    font-family: inherit;
+    font-size: 14px;
+    padding: 5px 36px 5px 12px;
+    height: 34px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        color var(--transition);
+}
+
+.field-select.has-value {
+    color: var(--text-primary); /* Cuando hay valor, se ve blanco */
+}
+
+.field-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-focus);
+}
+
+.field-select option {
+    background-color: #1c2128;
+    color: var(--text-primary);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none; /* La flecha no roba el clic */
+    display: flex;
+    align-items: center;
+    line-height: 0;
+}
+
+/* ============================================================
+   Mensajes de error debajo de cada campo
+   ============================================================ */
+.field-error {
+    font-size: 12px;
+    color: var(--error-text);
+    display: block;
+    margin-top: 1px;
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   Checkbox de términos (lo hago desde cero con CSS)
+   ============================================================ */
+.checkbox-group {
+    margin-top: 4px;
+    margin-bottom: 18px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0; /* Escondo el checkbox nativo */
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.checkbox-custom {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background-color var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+    position: relative;
+}
+
+/* El "check" lo hago con un pseudo-elemento */
+.checkbox-custom::after {
+    content: "";
+    display: block;
+    width: 9px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(0, -1px);
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.checkbox-input:checked + .checkbox-custom {
+    background-color: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+    opacity: 1;
+}
+
+.checkbox-input:focus-visible + .checkbox-custom {
+    box-shadow: var(--shadow-focus);
+    border-color: var(--border-focus);
+}
+
+.checkbox-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* ============================================================
+   Enlaces
+   ============================================================ */
+.link-accent {
+    color: var(--accent-green);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+
+.link-accent:hover {
+    color: #4ac96a;
+    text-decoration: underline;
+}
+
+.link-bold {
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.link-bold:hover {
+    color: #79b8ff;
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Botón principal (Registrar)
+   ============================================================ */
+.btn-primary {
+    width: 100%;
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 20px;
+    height: 34px;
+    cursor: pointer;
+    transition:
+        background-color var(--transition),
+        box-shadow var(--transition),
+        opacity var(--transition);
+    outline: none;
+    letter-spacing: 0.1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--btn-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+    background-color: var(--btn-active);
+    box-shadow: none;
+    transform: translateY(1px);
+}
+
+.btn-primary:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner que aparece cuando se está enviando */
+.btn-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+    flex-shrink: 0;
+}
+
+.btn-primary.is-loading .btn-spinner {
+    display: block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   Toast (no lo uso en este formulario, pero lo dejo por si acaso)
+   ============================================================ */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #1a2f1a;
+    border: 1px solid #2ea043;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #4ac96a;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    max-width: 320px;
+    transform: translateX(calc(100% + 24px));
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+
+.toast.toast--visible {
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.toast__icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
+.toast__message {
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* ============================================================
+   Tarjeta secundaria (para enlace a login, etc.)
+   ============================================================ */
+.secondary-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-card);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.auth-footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.auth-footer p + p {
+    margin-top: 2px;
+}
+
+/* ============================================================
+   Scrollbar personalizada
+   ============================================================ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+/* ============================================================
+   Para que el autocompletado de Chrome no rompa los colores
+   ============================================================ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset;
+    -webkit-text-fill-color: var(--text-primary);
+    caret-color: var(--text-primary);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ============================================================
+   Modal de éxito (ese que sale cuando registro bien)
+   ============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0; /* Ocupa toda la pantalla */
+    background-color: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+    backdrop-filter: blur(3px); /* Desenfoco el fondo */
+    animation: overlayIn 0.2s ease;
+}
+
+.modal-overlay[hidden] {
+    display: none;
+}
+
+@keyframes overlayIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-box {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow:
+        0 0 0 1px #30363d,
+        0 16px 48px rgba(0, 0, 0, 0.6);
+    padding: 32px 28px 28px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-icon {
+    width: 56px;
+    height: 56px;
+    background-color: rgba(63, 185, 80, 0.12);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-green);
+    margin-bottom: 4px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+}
+
+.modal-message {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.modal-btn {
+    margin-top: 8px;
+    min-width: 120px;
+    width: auto;
+}
+
+/* Modal de términos: estilo específico */
+.modal-terms {
+    max-width: 500px;
+}
+
+.modal-terms-content {
+    text-align: left;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 8px 0 4px;
+    line-height: 1.5;
+}
+
+.modal-terms-content ul {
+    margin: 8px 0 8px 20px;
+    padding-left: 0;
+}
+
+.modal-terms-content li {
+    margin: 6px 0;
+}
+
+.modal-terms-content p {
+    margin: 10px 0;
+}
